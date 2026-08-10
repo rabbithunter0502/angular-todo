@@ -13,9 +13,14 @@ sửa đúng theo nguyên tắc của Angular), và một checklist tư duy seni
 
 ```bash
 npm install
-npm start        # ng serve — http://localhost:4200
-npm test         # ng test  — vitest
-npm run build    # ng build — dist/angular-todo
+npm start          # ng serve — http://localhost:4200
+npm test           # ng test — vitest, 8 unit test
+npm run build      # ng build — dist/angular-todo/browser
+npm run typecheck  # tsc --noEmit trên cả src/ lẫn e2e/
+npm run format:check
+
+npx playwright install --with-deps chromium   # một lần, để chạy E2E cục bộ
+npm run build && npm run e2e                  # Playwright chạy trên chính bản build production
 ```
 
 ## Cấu trúc
@@ -32,7 +37,31 @@ src/app/
     todo-stats/                 # thống kê, presentational (input())
     todo-list/                   # danh sách + toast hoàn tất (effect() + onCleanup)
     todo-item/                   # một dòng việc, sửa/xoá/hoàn tất (input()/output())
+e2e/                            # Playwright E2E, chạy trên bản build production
+.github/workflows/pipeline.yml  # lint -> unit-test -> build -> e2e -> deploy (Pages)
 ```
+
+## CI/CD
+
+`.github/workflows/pipeline.yml` — chạy trên mọi push/PR vào `main` (và có thể bấm chạy tay qua
+tab _Actions_ → _Pipeline_ → _Run workflow_):
+
+1. **lint** — `prettier --check` + `tsc --noEmit` (cả `src/` và `e2e/`)
+2. **unit-test** — `ng test` (vitest, qua `TestBed`)
+3. **build** — `ng build` production, lưu lại làm artifact
+4. **e2e** — tải artifact ở bước 3, tự cài Chromium, chạy Playwright **trên đúng bản build đó**
+   (không phải `ng serve`) — bắt được lỗi chỉ lộ ra sau khi bundle/minify
+5. **deploy** — chỉ chạy khi **cả hai** điều kiện đúng: (a) đây là push vào `main`, và (b) biến
+   repo `DEPLOY_PAGES` = `true`. Build lại riêng với `--base-href /angular-todo/` rồi publish lên
+   GitHub Pages tại `https://<owner>.github.io/angular-todo/`.
+
+**Bật/tắt deploy:** Settings → Secrets and variables → Actions → tab _Variables_ → New repository
+variable → tên `DEPLOY_PAGES`, giá trị `true` (bật) hoặc `false`/xoá đi (tắt — mặc định tắt).
+Tắt biến này chỉ chặn các lần deploy _sau đó_, **không** tự gỡ site đã publish trước đó khỏi
+mạng — muốn gỡ hẳn thì vào Settings → Pages → Build and deployment → Source → chọn "None".
+
+Chi phí: repo này là **public**, nên cả GitHub Actions (mọi job ở trên) lẫn GitHub Pages đều
+**miễn phí**, không giới hạn số phút chạy đáng kể cho quy mô demo này.
 
 ## Ghi chú
 
