@@ -1,0 +1,23 @@
+@if (toast(); as message) {
+  <div class="toast">{{ message }}</div>
+}
+
+@if (store.filteredTodos().length === 0) {
+  <p class="empty">Không có việc nào ở đây.</p>
+} @else {
+  <div class="list" role="list">
+    @for (todo of store.filteredTodos(); track todo.id) {
+      <app-todo-item
+        [todo]="todo"
+        [editing]="store.editingId() === todo.id"
+        [draftTitle]="store.draftTitle()"
+        (toggle)="store.toggleTodo($event)"
+        (remove)="store.removeTodo($event)"
+        (startEdit)="store.startEditing($event)"
+        (draftTitleChange)="store.updateDraft($event)"
+        (commitEdit)="store.commitEdit()"
+        (cancelEdit)="store.cancelEditing()"
+      />
+    }
+  </div>
+}

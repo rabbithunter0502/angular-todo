@@ -1,0 +1,8 @@
+@if (isSeeding()) {
+  <p class="loading">Đang tải dữ liệu mẫu…</p>
+} @else {
+  <p class="summary">
+    <strong>{{ stats().remaining }}</strong> việc còn lại / {{ stats().completed }} đã xong /
+    {{ stats().total }} tổng cộng
+  </p>
+}
