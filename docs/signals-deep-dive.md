@@ -531,10 +531,17 @@ bài test Playwright thật, sửa bằng đúng nguyên tắc đó. Cả `todo-
 
 ```bash
 npm install
-npm start        # ng serve — http://localhost:4200
-npm test         # ng test  — vitest, 8 test trong todo-store.spec.ts + app.spec.ts
-npm run build    # ng build — production bundle vào dist/angular-todo
+npm start          # ng serve — http://localhost:4200
+npm test           # ng test — vitest, 8 test trong todo-store.spec.ts + app.spec.ts
+npm run build      # ng build — production bundle vào dist/angular-todo/browser
+npm run typecheck  # tsc --noEmit, cả src/ lẫn e2e/
+npx playwright install --with-deps chromium   # một lần
+npm run build && npm run e2e                  # Playwright chạy trên chính bản build production
 ```
+
+`.github/workflows/pipeline.yml` chạy đúng 5 bước này (lint → unit-test → build → e2e → deploy)
+trên mỗi push/PR vào `main`, cộng thêm bước `deploy` lên GitHub Pages — chi tiết và cách bật/tắt
+deploy nằm ở mục "CI/CD" trong `README.md`.
 
 ### Ghi chú kỹ thuật: vì sao `@angular/cli` không phải v22 dù framework là v22
 
@@ -545,8 +552,8 @@ hạn của framework Angular (`@angular/core`), chỉ là guard cứng trong bi
 
 `package.json` của repo này vì vậy ghim `@angular/cli@^21.2.20` (thoả điều kiện Node của CLI 21:
 `^20.19.0 || ^22.12.0 || >=24`) làm công cụ chạy lệnh, trong khi mọi package framework thật
-(`@angular/core`, `common`, `compiler`, `forms`, `platform-browser`, `router`, `compiler-cli`,
-`@angular/build`) đều ghim đúng `22.1.1`. Việc này hợp lệ vì bản thân `@angular/build` chỉ tự
+(`@angular/core`, `common`, `compiler`, `platform-browser`, `compiler-cli`, `@angular/build`) đều
+ghim đúng `22.1.1`. Việc này hợp lệ vì bản thân `@angular/build` chỉ tự
 kiểm tra _tương thích với `@angular/core`_ (`assertCompatibleAngularVersion` trong
 `@angular/build/src/utils/version.js`, so `@angular/core/package.json` với range hỗ trợ), không
 kiểm tra lại Node version của riêng nó — guard Node chỉ nằm ở `ng.js` của CLI. Kết quả: build,
