@@ -1,0 +1,13 @@
+<section class="card">
+  <h1>Angular Signals · Todo</h1>
+
+  <app-todo-toolbar
+    (add)="store.addTodo($event)"
+    (filterChange)="store.setFilter($event)"
+    (clearCompleted)="store.clearCompleted()"
+  />
+
+  <app-todo-stats [stats]="store.stats()" [isSeeding]="store.isSeeding()" />
+
+  <app-todo-list />
+</section>

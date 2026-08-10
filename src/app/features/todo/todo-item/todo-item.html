@@ -1,0 +1,30 @@
+@if (editing()) {
+  <form class="edit-form" (submit)="$event.preventDefault(); commitEdit.emit()">
+    <input
+      class="edit-input"
+      type="text"
+      [value]="draftTitle()"
+      (input)="draftTitleChange.emit($any($event.target).value)"
+      (keydown.escape)="cancelEdit.emit()"
+      autofocus
+    />
+    <button type="submit" class="icon-button" title="Lưu">✔</button>
+    <button type="button" class="icon-button" title="Huỷ" (click)="cancelEdit.emit()">✕</button>
+  </form>
+} @else {
+  <label class="row" [class.completed]="todo().completed">
+    <input
+      type="checkbox"
+      [checked]="todo().completed"
+      (change)="toggle.emit(todo().id)"
+      [attr.aria-label]="statusLabel()"
+    />
+    <span class="title" (dblclick)="startEdit.emit(todo().id)">{{ todo().title }}</span>
+    <button type="button" class="icon-button" title="Sửa" (click)="startEdit.emit(todo().id)">
+      ✎
+    </button>
+    <button type="button" class="icon-button danger" title="Xoá" (click)="remove.emit(todo().id)">
+      🗑
+    </button>
+  </label>
+}

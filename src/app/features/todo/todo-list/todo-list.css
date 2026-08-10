@@ -1,0 +1,20 @@
+.toast {
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  background: #ecfdf3;
+  color: #027a48;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.empty {
+  color: #98a2b3;
+  font-style: italic;
+  padding: 1rem 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,26 @@
+<form class="add-form" (submit)="$event.preventDefault(); submit()">
+  <input
+    class="add-input"
+    type="text"
+    placeholder="Bạn cần làm gì?"
+    [value]="newTitle()"
+    (input)="newTitle.set($any($event.target).value)"
+    autofocus
+  />
+  <button class="add-button" type="submit">Thêm</button>
+</form>
+
+<div class="filters">
+  @for (filter of filters; track filter) {
+    <button
+      type="button"
+      class="filter-button"
+      [class.active]="activeFilter() === filter"
+      (click)="selectFilter(filter)"
+    >
+      {{ filter === 'all' ? 'Tất cả' : filter === 'active' ? 'Đang làm' : 'Hoàn tất' }}
+    </button>
+  }
+
+  <button type="button" class="clear-button" (click)="clearCompleted.emit()">Xoá đã xong</button>
+</div>
