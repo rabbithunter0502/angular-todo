@@ -54,8 +54,11 @@ toggleTodo(id: string): void {
 }
 ```
 
+📍 [`todo-store.ts#L132-L151`](https://github.com/rabbithunter0502/angular-todo/blob/9cc370cb01fad649b8396fbb3f41ee1e5d4f9f94/src/app/core/state/todo-store.ts#L132-L151)
+(`toggleTodo`)
+
 `TodoListComponent` phản ứng với `completionEvents` thay vì diff `stats().completed` — xem
-`src/app/features/todo/todo-list/todo-list.ts`.
+[`todo-list.ts#L36-L45`](https://github.com/rabbithunter0502/angular-todo/blob/9cc370cb01fad649b8396fbb3f41ee1e5d4f9f94/src/app/features/todo/todo-list/todo-list.ts#L36-L45).
 
 ## Bài học tổng quát
 

@@ -27,9 +27,9 @@ khi `editingId` chuyển sang một item khác — nhưng _không_ reset trên m
 
 ## Quyết định
 
-Chọn `linkedSignal` (phương án 4) — xem implementation tại `TodoStore.draftTitle`
-(`src/app/core/state/todo-store.ts`) và giải thích cơ chế tại
-[`docs/signals-deep-dive.md` §6](../signals-deep-dive.md).
+Chọn `linkedSignal` (phương án 4) — xem implementation tại
+[`TodoStore.draftTitle`](https://github.com/rabbithunter0502/angular-todo/blob/9cc370cb01fad649b8396fbb3f41ee1e5d4f9f94/src/app/core/state/todo-store.ts#L80-L90)
+và giải thích cơ chế tại [`docs/signals-deep-dive.md` §6](../signals-deep-dive.md).
 
 ## Đánh đổi chấp nhận
 
