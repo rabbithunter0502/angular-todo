@@ -1,12 +1,34 @@
 # Angular Signals — đọc từ source code, demo thật, và tư duy senior
 
-> Toàn bộ phần "từ source code" dưới đây được trích từ repo `angular/angular`, nhánh `main`
-> tại thời điểm viết (`22.2.0-next.1`, ngay sau bản phát hành `22.1.1` — tức là code hiện tại
-> của Angular v22). Đường dẫn file luôn là repo-relative để bạn tự đối chiếu.
+> Toàn bộ phần "từ source code" dưới đây được trích từ repo `angular/angular` tại đúng tag
+> **[`v22.1.1`](https://github.com/angular/angular/tree/v22.1.1)**
+> (commit [`7c15737`](https://github.com/angular/angular/commit/7c15737f50c0f22b2f04e138f18ec862ac446d09))
+> — khớp chính xác version `@angular/core` mà `package.json` của repo này ghim, không phải một
+> snapshot `main` có thể trôi theo thời gian. Mỗi đoạn trích đều có permalink GitHub kèm số dòng
+> trỏ thẳng vào commit đó — bấm vào để đối chiếu, không cần tin chay. Một vài đoạn được **rút gọn**
+> (bỏ JSDoc, gộp bớt guard clause) để dễ đọc hơn cho mục đích giảng dạy; permalink luôn trỏ tới
+> đoạn code thật đầy đủ, có ghi chú rõ khi bản rút gọn bỏ sót chi tiết đáng kể.
 >
 > Phần demo là app Todo thật nằm trong `src/app/` của repo này, build bằng `@angular/core@22.1.1`
 > thật (không phải giả lập) — cách dựng nó (và một cái bẫy CLI-vs-framework-version khá thú vị)
 > nằm ở cuối tài liệu.
+
+**Mục lục**
+
+1. [Bản đồ tổng quan](#1-bản-đồ-tổng-quan)
+2. [Lớp lõi: đồ thị producer/consumer](#2-lớp-lõi-đồ-thị-producerconsumer-primitivessignalssrcgraphts)
+3. [`signal()`](#3-signal-primitivessignalssrcsignalts)
+4. [`computed()`](#4-computed-primitivessignalssrccomputedts)
+5. [`effect()`](#5-effect--hai-lớp-watchts-primitive-và-render3reactivityeffectts-angular)
+6. [`linkedSignal()`](#6-linkedsignal-primitivessignalssrclinked_signalts--render3reactivitylinked_signalts)
+7. [`resource()`](#7-resource--ổn-định-publicapi-220-đúng-từ-bản-v22-này)
+8. [Vì sao effect chạy được không cần Zone.js](#8-vì-sao-effect-có-thể-update-dom-mà-không-cần-zonejs)
+9. [Demo: map primitive → file thật trong repo](#9-demo-map-primitive--file-thật-trong-repo)
+10. [Checklist tư duy senior](#10-tổng-hợp--checklist-tư-duy-senior-khi-làm-việc-với-signals)
+11. [Chạy demo](#11-chạy-demo)
+
+Tài liệu liên quan: [ADR](./adr/README.md) · [Case studies](./case-studies/) ·
+[So sánh state management](./comparison-state-management.md) · [Bài tập](../EXERCISES.md)
 
 ---
 
@@ -51,6 +73,11 @@ export interface ReactiveNode {
 }
 ```
 
+📍 [`graph.ts#L120-L207`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/graph.ts#L120-L207)
+— bản rút gọn ở trên bỏ JSDoc và 4 field mới hơn (`recomputing`, `producersTail`,
+`consumersTail`, `consumerAllowSignalWrites`, `debugName`, `kind`) không ảnh hưởng tới ý tưởng
+cốt lõi "một node, hai vai trò" nhưng có thật trong source — xem permalink để biết đủ.
+
 Một `computed` vừa là **consumer** (nó đọc các signal khác) vừa là **producer** (những thứ
 khác đọc nó). Một `signal` gốc chỉ là producer. Một `effect` chỉ là consumer. Đây là lý do
 `signal`/`computed`/`effect`/`linkedSignal` đều được cài bằng cách "kế thừa" (`Object.create`)
@@ -70,6 +97,12 @@ export function producerAccessed(node: ReactiveNode): void {
   }
 }
 ```
+
+📍 [`graph.ts#L212-L295`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/graph.ts#L212-L295)
+— bản thật dài hơn nhiều: từ v22 nó còn dùng `producersTail`/`recomputing` để **incremental-diff**
+danh sách producer khi một consumer chạy lại (thay vì rebuild toàn bộ linked list mỗi lần), cộng
+một guard ném lỗi nếu đọc signal giữa lúc đang notify (`inNotificationPhase`). Ý tưởng cốt lõi ở
+đây — "đọc = đăng ký, chỉ khi có `activeConsumer`" — không đổi; permalink để thấy tối ưu hoá thật.
 
 `activeConsumer` là một biến module-level duy nhất (`let activeConsumer: ReactiveNode | null`).
 Khi `computed`/`effect` chạy, nó gọi `consumerBeforeComputation` để đặt mình làm
@@ -105,6 +138,10 @@ function producerAddLiveConsumer(node: ReactiveNode, link: ReactiveLink): void {
 }
 ```
 
+📍 [`graph.ts#L523-L544`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/graph.ts#L523-L544)
+— cấu trúc linked-list thật dùng con trỏ `consumersTail` để chèn O(1) (doubly-linked), nhưng cùng
+một thuật toán lan truyền "live" bắc cầu như đoạn rút gọn ở trên.
+
 Nói cách khác: **một `computed()` không ai đọc thì hoàn toàn là code chết** — object được tạo
 ra nhưng không nằm trong đường dẫn thông báo nào cả, và thân hàm của nó chỉ chạy khi _ai đó gọi
 nó như một hàm_. Đây là khác biệt cốt lõi so với, ví dụ, MobX `computed` hay Vue `computed` mà
@@ -129,6 +166,11 @@ function signalValueChanged<T>(node: SignalNode<T>): void {
 }
 ```
 
+📍 [`signal.ts#L86-L95`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/signal.ts#L86-L95)
+(`signalSetFn`) · [`signal.ts#L120-L125`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/signal.ts#L120-L125)
+(`signalValueChanged`) — khớp gần như nguyên văn, chỉ bớt một guard `producerUpdatesAllowed()`
+ném lỗi nếu `.set()` bị gọi trong lúc không hợp lệ (ví dụ trong thân `computed`).
+
 ```ts
 // graph.ts
 export function producerNotifyConsumers(node: ReactiveNode): void {
@@ -137,6 +179,8 @@ export function producerNotifyConsumers(node: ReactiveNode): void {
   }
 }
 ```
+
+📍 [`graph.ts#L339-L361`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/graph.ts#L339-L361)
 
 Đây là nửa **push** của mô hình. Việc set một signal chỉ lan truyền một cờ `dirty = true` xuôi
 theo các live consumer — hoàn toàn không tính lại giá trị nào, không so sánh gì sâu hơn tham
@@ -160,6 +204,9 @@ export function producerUpdateValueVersion(node: ReactiveNode): void {
 }
 ```
 
+📍 [`graph.ts#L309-L334`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/graph.ts#L309-L334)
+— khớp gần như nguyên văn với source thật (chỉ bớt comment giải thích từng nhánh).
+
 Đây là nửa **pull**. Ba tầng short-circuit theo đúng thứ tự chi phí tăng dần:
 
 1. _Live & không dirty_ → producer chắc chắn đã "đẩy" dirty nếu có gì đổi, nên sạch nghĩa là
@@ -179,6 +226,34 @@ lần chạy lại (`resetConsumerBeforeComputation`/`finalizeConsumerAfterCompu
 cũ không còn được đọc tới — tức là **dependency là động**: `computed(() => flag() ? a() : b())`
 sẽ ngừng track `b` hoàn toàn khi `flag()` là `true`, cho tới khi `flag()` đổi lại).
 
+### 2.6. Sơ đồ tổng hợp: push (dirty) xuôi, pull (recompute) ngược
+
+Hai nửa **push** (§2.4) và **pull** (§2.5) ghép lại thành một vòng hoàn chỉnh mỗi khi một signal
+gốc bị `.set()`:
+
+```mermaid
+flowchart LR
+    subgraph "PUSH — signal.set() (§2.4)"
+        A["signal.set(v)"] --> B["signalValueChanged<br/>version++, epoch++"]
+        B --> C["producerNotifyConsumers"]
+        C --> D["mỗi live consumer:<br/>dirty = true"]
+    end
+    D --> E
+
+    subgraph "PULL — ai đó đọc computed/effect (§2.5)"
+        E["producerUpdateValueVersion"] --> F{"live && !dirty?"}
+        F -->|có| G["trả giá trị cũ,<br/>không tính lại"]
+        F -->|không| H["poll version<br/>từng producer"]
+        H --> I{"có producer nào<br/>version lệch?"}
+        I -->|không| G
+        I -->|có| J["producerRecomputeValue<br/>chạy lại thân hàm"]
+    end
+```
+
+Điểm mấu chốt: **push chỉ lan cờ `dirty`, không lan giá trị** — recompute thật sự (`J`) chỉ xảy ra
+ở nhánh pull, và chỉ khi có ai chủ động đọc. Một `computed` không ai đọc dừng lại ở bước `D`, không
+bao giờ tới `E`.
+
 ---
 
 ## 3. `signal()` (`primitives/signals/src/signal.ts`)
@@ -193,6 +268,10 @@ export function createSignal<T>(initialValue: T, equal?: ValueEqualityFn<T>) {
   return [getter, set, update];
 }
 ```
+
+📍 [`signal.ts#L53-L73`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/signal.ts#L53-L73)
+— bản rút gọn bỏ dòng debug (`getter.toString` cho dev-mode) và hook profiler
+(`runPostProducerCreatedFn`), không đổi cơ chế cốt lõi.
 
 `equal` mặc định là `Object.is` (`defaultEquals` trong `equality.ts`) — **so sánh tham chiếu**,
 không deep-equal. Đây là lý do `TodoStore.toggleTodo()` trong demo luôn tạo mảng/object mới
@@ -212,6 +291,8 @@ export const UNSET: any = Symbol('UNSET'); // chưa từng tính lần nào
 export const COMPUTING: any = Symbol('COMPUTING'); // đang tính dở — dùng để bắt cycle
 export const ERRORED: any = Symbol('ERRORED'); // lần tính trước ném lỗi
 ```
+
+📍 [`computed.ts#L95-L113`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/computed.ts#L95-L113)
 
 ```ts
 producerRecomputeValue(node) {
@@ -234,6 +315,10 @@ producerRecomputeValue(node) {
 }
 ```
 
+📍 [`computed.ts#L132-L172`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/computed.ts#L132-L172)
+— khớp gần như nguyên văn, chỉ bớt comment và một điều kiện phụ trong `wasEqual`
+(`oldValue !== ERRORED && newValue !== ERRORED`, để tránh coi hai lỗi liên tiếp là "bằng nhau").
+
 Hai điều mà nhiều lập trình viên bỏ sót:
 
 - **Phát hiện vòng lặp là tự động và là lỗi cứng**, không phải giới hạn đệ quy: đọc chính mình
@@ -241,8 +326,12 @@ Hai điều mà nhiều lập trình viên bỏ sót:
 - **`computed` có "equality gate" ở tầng của chính nó**, độc lập với gate của từng signal nguồn:
   dù các signal đầu vào đổi (khiến thân hàm chạy lại), nếu giá trị trả về `equal` với giá trị cũ
   thì `version` _không_ tăng → **các consumer của computed này không hề biết có chuyện gì xảy
-  ra**, dù bản thân computed _đã_ recompute. Đây chính là điều mình khai thác có chủ đích (và
-  giải thích rõ) ở `TodoStatsComponent` trong demo — xem mục 7.4.
+  ra**, dù bản thân computed _đã_ recompute. `TodoStore.stats` (`core/state/todo-store.ts`) không
+  khai thác điều này (trả object mới mỗi lần, `equal` mặc định), nhưng docblock của
+  `TodoStatsComponent` (`features/todo/todo-stats/todo-stats.ts`) giải thích rõ khi nào nên cân
+  nhắc một `equal` tuỳ chỉnh để tận dụng đúng cơ chế này — xem thêm ở
+  [checklist "Equality & mutation"](#10-tổng-hợp--checklist-tư-duy-senior-khi-làm-việc-với-signals)
+  bên dưới.
 
 ---
 
@@ -258,6 +347,8 @@ const WATCH_NODE = {
   consumerMarkedDirty: (node) => node.schedule?.(node.ref), // dirty -> giao cho "scheduler" bên ngoài
 };
 ```
+
+📍 [`watch.ts#L143-L155`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/watch.ts#L143-L155)
 
 `Watch` không tự quyết định _khi nào_ chạy lại — nó chỉ gọi `schedule(this)` mỗi khi bị đánh dấu
 dirty, và ai tạo ra nó (ở đây là `@angular/core`) quyết định `schedule` nghĩa là gì.
@@ -279,6 +370,11 @@ export function effect(effectFn, options?) {
 }
 ```
 
+📍 [`effect.ts#L137-L197`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/src/render3/reactivity/effect.ts#L137-L197)
+— bản rút gọn bỏ các assertion dev-mode (`assertNotInReactiveContext`, `assertInInjectionContext`)
+và phần đăng ký `DestroyRef`/`InjectorProfiler`; nhánh `viewContext`/`createRootEffect` là nguyên
+văn ý tưởng thật.
+
 - **View effect**: gắn vào `LView` của component đang tạo ra nó
   (`view[EFFECTS].add(node)`), chạy như một phần chu kỳ change-detection của chính component đó
   (`consumerMarkedDirty` set cờ `HasChildViewsToRefresh` rồi `markAncestorsForTraversal`), và
@@ -292,8 +388,9 @@ Cả hai đều dùng chung `EFFECT_NODE.run()`, và cả hai _đều_ chạy đ
 (`createRootEffect` gọi `node.notifier.notify(...)` ngay; `createViewEffect` gọi
 `node.consumerMarkedDirty(node)` ngay) — **effect không phải "chỉ chạy khi có thay đổi"**, nó
 luôn chạy một lần đầu để thiết lập baseline dependencies, y hệt `computed`. Bài học này không
-phải lý thuyết suông — mục 7.5 kể lại một bug thật gặp phải khi build demo, xuất phát trực tiếp
-từ việc quên chi tiết này.
+phải lý thuyết suông —
+[case study `completion-toast-race-condition`](./case-studies/completion-toast-race-condition.md)
+kể lại một bug thật gặp phải khi build demo, xuất phát trực tiếp từ việc quên chi tiết này.
 
 ### 5.3. Cleanup (`onCleanup`)
 
@@ -305,16 +402,52 @@ cleanup() {
 }
 ```
 
+📍 [`effect.ts#L235-L251`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/src/render3/reactivity/effect.ts#L235-L251)
+— bản thật bọc thêm `setActiveConsumer(null)`/khôi phục lại, để việc gọi các hàm cleanup không bị
+tính là "đọc signal trong effect này".
+
 `cleanupFns` được gọi _trước mỗi lần effect chạy lại_, và khi effect bị destroy. Hàm cleanup do
 chính effect đăng ký ở lần chạy trước (`onCleanup(fn)`) — nghĩa là mỗi lần chạy, effect "dọn dẹp
 tàn dư của chính nó ở lần chạy trước" rồi mới làm việc mới. `TodoListComponent` dùng đúng pattern
 này để huỷ `setTimeout` cũ của toast trước khi (có thể) đặt một cái mới.
 
+### 5.4. Sơ đồ vòng đời một effect
+
+```mermaid
+sequenceDiagram
+    participant Code as Code tạo effect()
+    participant Sched as Scheduler (view/root)
+    participant Eff as EFFECT_NODE
+    participant Dep as Signal phụ thuộc
+
+    Code->>Sched: effect(fn)
+    Sched->>Eff: tạo node, schedule chạy lần đầu
+    Eff->>Eff: cleanup() — không có gì để dọn lần đầu
+    Eff->>Dep: chạy fn(), track mọi signal đọc bên trong (§2.2)
+    Eff->>Code: fn có thể gọi onCleanup(dọnFn)
+
+    Note over Dep,Eff: ...thời gian trôi qua...
+
+    Dep->>Eff: signal.set() -> consumerMarkedDirty (§2.4)
+    Eff->>Sched: schedule(this) — root: microtask / view: đánh dấu view cần refresh
+    Sched->>Eff: đến lượt chạy lại
+    Eff->>Eff: cleanup() — gọi dọnFn đã đăng ký lần trước
+    Eff->>Dep: chạy lại fn(), track lại dependency (có thể khác lần trước)
+
+    Note over Eff: destroy (component huỷ / DestroyRef)
+    Eff->>Eff: cleanup() lần cuối, gỡ khỏi mọi producer
+```
+
+Hai điểm hay bị bỏ sót khi chỉ đọc mô tả bằng lời: **chạy lần đầu không cần chờ signal nào đổi**
+(mũi tên `Eff->>Dep` đầu tiên xảy ra ngay sau khi tạo, không phải sau `signal.set()`), và
+**`cleanup()` luôn chạy trước fn**, kể cả ở lần chạy đầu tiên (chỉ là không có gì để dọn) — đây là
+chi tiết mà
+[case study `completion-toast-race-condition`](./case-studies/completion-toast-race-condition.md)
+xây dựng trên đó.
+
 ---
 
-## 6. `linkedSignal()` (`primitives/signals/src/linked_signal.ts` +
-
-`render3/reactivity/linked_signal.ts`)
+## 6. `linkedSignal()` (`primitives/signals/src/linked_signal.ts` + `render3/reactivity/linked_signal.ts`)
 
 Về bản chất, `linkedSignal` là một `computed` được "nâng cấp" để có thêm `.set()`/`.update()` ghi
 đè trực tiếp giá trị hiện tại — nhưng lần tới khi `source` đổi, computation chạy lại và **ghi đè
@@ -328,6 +461,12 @@ linkedSignal<S, D>(options: {
   equal?: ValueEqualityFn<D>;
 });
 ```
+
+📍 [`render3/reactivity/linked_signal.ts#L47-L53`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/src/render3/reactivity/linked_signal.ts#L47-L53)
+(chữ ký `@publicApi 20.0`, ổn định từ trước v22.1.1) · phần lưu state thật nằm ở
+[`primitives/signals/src/linked_signal.ts#L32-L61`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/primitives/signals/src/linked_signal.ts#L32-L61)
+(`LinkedSignalNode`) — bản rút gọn bỏ `debugName?` và `set?` (một callback tuỳ chỉnh hành vi ghi,
+không dùng trong demo này).
 
 `previous` cho computation biết cả `source` _và_ `value` của lần chạy trước — hữu ích khi bạn
 muốn giữ một phần giá trị cũ thay vì luôn tính lại từ đầu. `TodoStore.draftTitle` trong demo
@@ -354,6 +493,9 @@ qua `.set()` (qua `updateDraft()`), không đi qua `computation`.
  */
 export function resource<T, R>(options: ResourceOptions<T, R> & {...}): ResourceRef<T>;
 ```
+
+📍 [`resource/resource.ts#L45-L52`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/src/resource/resource.ts#L45-L52)
+— dòng 49 khớp chính xác `@publicApi 22.0` như trích dẫn ở trên.
 
 Trước v22, API này còn ở dạng developer-preview (và trước đó nữa từng có tên `rxResource` riêng
 cho bản RxJS). Trong v22, chữ ký ổn định là:
@@ -389,6 +531,10 @@ App demo **không có `zone.js`** trong `package.json` — không phải vì b�
 private readonly zoneIsDefined = typeof Zone !== 'undefined' && !!Zone.root.run;
 ```
 
+📍 [`change_detection/scheduling/zoneless_scheduling_impl.ts#L67`](https://github.com/angular/angular/blob/7c15737f50c0f22b2f04e138f18ec862ac446d09/packages/core/src/change_detection/scheduling/zoneless_scheduling_impl.ts#L67)
+— nguyên văn. Xem thêm [ADR 0001](./adr/0001-zoneless-signals-state.md) cho quyết định chọn
+zoneless của chính repo này.
+
 Không có `zone.js` global → `zoneIsDefined === false` → Angular tự dùng lịch trình dựa trên
 signal (`producerNotifyConsumers` → hook `consumerMarkedDirty` của effect/template consumer →
 `notifier.notify(...)` → `ApplicationRef` lên lịch một tick) thay vì dựa vào việc monkey-patch
@@ -418,48 +564,13 @@ với zoneless một cách tự nhiên**, vì cả hai đều xây trên cùng m
 
 ### 9.1. Vì sao `completionEvents` là một signal riêng, không phải "diff `stats().completed`"
 
-Bản đầu tiên của toast trong `TodoListComponent` **không** có `completionEvents` trong
-`TodoStore` — nó theo dõi `store.stats().completed` trong một `effect()`, tự lưu
-`previousCompleted` trong closure, và so sánh "tăng lên thì báo toast". Chạy build, chạy
-`ng serve`, rồi kiểm tra bằng Playwright thật (không chỉ đọc code): toast hiện ra **ngay khi tải
-trang**, trước khi người dùng bấm gì cả.
-
-Nguyên nhân, đọc lại bằng đúng cơ chế ở mục 5.2: effect hydrate dữ liệu từ `resource()` và effect
-đếm-toast là hai _root/view effect độc lập_, cả hai cùng chạy lần đầu gần như đồng thời khi
-`TodoStore`/`TodoListComponent` được tạo — nhưng effect hydrate chỉ hoàn tất **sau khi
-`resource()` resolve** (bất đồng bộ, 500ms giả lập). Vậy nên "tăng từ 0 lên 1" xảy ra hợp lệ về
-mặt dữ liệu (một item seed vốn `completed: true`), nhưng **không hề bắt nguồn từ một cú click
-nào của người dùng** — chỉ đơn giản là dữ liệu ban đầu tải xong.
-
-Sửa bằng cách thêm một guard "chạy lần đầu thì chỉ ghi baseline, không báo toast" _vẫn_ không đủ:
-lần đầu effect chạy, `resource()` thường **chưa** resolve (nó chạy đồng bộ ngay khi component vừa
-tạo), nên baseline ghi nhận là `0`; khi `resource()` resolve sau đó, effect chạy **lại lần thứ
-hai** với `completed = 1` — với con mắt của "diff theo thời gian", lần thứ hai _đúng là_ một cú
-tăng, y hệt một lần toggle thật.
-
-Giải pháp đúng: đừng suy luận "vừa xảy ra hành động gì" bằng cách diff state theo thời gian trong
-effect — hãy phát ra tín hiệu tường minh **tại chính nơi hành động xảy ra**
-(`TodoStore.toggleTodo()`), độc lập hoàn toàn với bất kỳ tiến trình hydrate/async nào khác:
-
-```ts
-toggleTodo(id: string): void {
-  let justCompleted = false;
-  this._todos.update(todos => todos.map(t => {
-    if (t.id !== id) return t;
-    justCompleted = !t.completed;
-    return { ...t, completed: justCompleted };
-  }));
-  if (justCompleted) {
-    this._completionEvents.set({ id, at: Date.now() }); // object mới -> luôn notify, kể cả lặp lại cùng id
-  }
-}
-```
-
-Đây chính là điều tài liệu chính thức của Angular gọi là "effect nên dùng để đồng bộ với hệ thống
-ngoài reactive graph (DOM, storage, logging...), không nên dùng để tái tạo lại business logic từ
-state" — nhưng ở đây nó không phải một câu trích dẫn suông, mà là một bug thật, bắt được bằng một
-bài test Playwright thật, sửa bằng đúng nguyên tắc đó. Cả `todo-store.spec.ts` lẫn nội dung phần
-10 dưới đây đều đúc kết trực tiếp từ ca này.
+Bản đầu tiên của toast trong `TodoListComponent` theo dõi `store.stats().completed` trong một
+`effect()` và so sánh "tăng lên thì báo toast" — kiểm tra bằng Playwright thật lộ ra một bug: toast
+hiện ra ngay khi tải trang, trước khi người dùng bấm gì cả, vì effect hydrate dữ liệu từ
+`resource()` và effect đếm-toast là hai root/view effect độc lập chạy gần như đồng thời (mục 5.2).
+Case study đầy đủ (triệu chứng → nguyên nhân → giải pháp đúng → bài học), kèm code fix thật, nằm ở
+[`docs/case-studies/completion-toast-race-condition.md`](./case-studies/completion-toast-race-condition.md)
+— đọc trước khi làm Bài 4 trong [`EXERCISES.md`](../EXERCISES.md).
 
 ---
 
@@ -545,18 +656,8 @@ deploy nằm ở mục "CI/CD" trong `README.md`.
 
 ### Ghi chú kỹ thuật: vì sao `@angular/cli` không phải v22 dù framework là v22
 
-Môi trường build container đi kèm Node `v22.22.2`. `@angular/cli@22.x` (và `@angular/build@22.x`)
-tự kiểm tra Node version lúc khởi động và **từ chối chạy** nếu thấp hơn `22.22.3` — đọc trực tiếp
-từ `node_modules/@angular/cli/bin/ng.js` khi thử scaffold bằng CLI 22 thật. Đây không phải giới
-hạn của framework Angular (`@angular/core`), chỉ là guard cứng trong binary `ng`.
-
-`package.json` của repo này vì vậy ghim `@angular/cli@^21.2.20` (thoả điều kiện Node của CLI 21:
-`^20.19.0 || ^22.12.0 || >=24`) làm công cụ chạy lệnh, trong khi mọi package framework thật
-(`@angular/core`, `common`, `compiler`, `platform-browser`, `compiler-cli`, `@angular/build`) đều
-ghim đúng `22.1.1`. Việc này hợp lệ vì bản thân `@angular/build` chỉ tự
-kiểm tra _tương thích với `@angular/core`_ (`assertCompatibleAngularVersion` trong
-`@angular/build/src/utils/version.js`, so `@angular/core/package.json` với range hỗ trợ), không
-kiểm tra lại Node version của riêng nó — guard Node chỉ nằm ở `ng.js` của CLI. Kết quả: build,
-test, serve đều chạy bằng đúng runtime `@angular/core@22.1.1`, chỉ mượn "vỏ" điều phối lệnh từ
-CLI 21. Nếu môi trường của bạn có Node ≥ 22.22.3, việc này hoàn toàn không cần thiết — ghim luôn
-`@angular/cli@^22` là đủ.
+`package.json` ghim `@angular/cli@^21.2.20` trong khi mọi package framework thật (`@angular/core`,
+`common`, `compiler`, `platform-browser`, `compiler-cli`, `@angular/build`) đều ghim đúng
+`22.1.1` — không phải nhầm lẫn, mà là một cái bẫy Node-version-vs-CLI-version khá thú vị. Lý do
+đầy đủ (đọc từ `node_modules/@angular/cli/bin/ng.js` và
+`@angular/build/src/utils/version.js`) nằm ở [ADR 0003](./adr/0003-cli-vs-core-version-pin.md).

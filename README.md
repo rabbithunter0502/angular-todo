@@ -1,13 +1,29 @@
 # angular-todo
 
+[![Pipeline](https://github.com/rabbithunter0502/angular-todo/actions/workflows/pipeline.yml/badge.svg)](https://github.com/rabbithunter0502/angular-todo/actions/workflows/pipeline.yml)
+
 Todo app dựng bằng **Angular v22** (`@angular/core@22.1.1`), zoneless, dùng **Signals**
 (`signal`, `computed`, `effect`, `linkedSignal`, `resource`) làm toàn bộ state management —
 không NgRx, không RxJS store.
 
+Repo này là **tài liệu tự học/giảng dạy Signals trước, app demo sau** — xem mục
+[Giới hạn](#giới-hạn) trước khi coi đây là template production.
+
 📖 **[docs/signals-deep-dive.md](./docs/signals-deep-dive.md)** — giải thích Signals từ chính
-source code của Angular (`packages/core/primitives/signals`, `render3/reactivity`), map từng
-primitive vào code thật trong app này, một case study bug thật gặp phải khi build demo (và cách
-sửa đúng theo nguyên tắc của Angular), và một checklist tư duy senior khi làm việc với Signals.
+source code của Angular (permalink pinned theo tag `v22.1.1`, khớp version đang ghim trong
+`package.json`), map từng primitive vào code thật trong app này, một case study bug thật gặp
+phải khi build demo (và cách sửa đúng theo nguyên tắc của Angular), và một checklist tư duy
+senior khi làm việc với Signals. Tài liệu liên quan:
+
+- [`docs/adr/`](./docs/adr/) — quyết định thiết kế (vì sao zoneless, vì sao không NgRx, vì sao
+  `linkedSignal` cho `draftTitle`...), theo khuôn ADR.
+- [`docs/case-studies/`](./docs/case-studies/) — bug thật gặp phải khi build demo, kể lại theo
+  khuôn triệu chứng → nguyên nhân → giải pháp → bài học.
+- [`docs/comparison-state-management.md`](./docs/comparison-state-management.md) — so sánh có
+  căn cứ giữa signal store thuần (repo này), `@ngrx/signals`, `BehaviorSubject`, và NgRx classic.
+- [`EXERCISES.md`](./EXERCISES.md) — 4 bài tập tăng dần độ khó, có gợi ý lời giải, để tự học hoặc
+  giao cho dev khác.
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — quy ước thêm feature/ADR/case-study mới.
 
 ## Chạy thử
 
@@ -66,5 +82,14 @@ Chi phí: repo này là **public**, nên cả GitHub Actions (mọi job ở trê
 ## Ghi chú
 
 Khai báo `@angular/cli@^21.2.20` trong khi mọi package framework (`@angular/core` và các gói
-liên quan) đều ghim `22.1.1` là chủ đích, không phải nhầm lẫn — lý do nằm ở mục cuối
-`docs/signals-deep-dive.md`.
+liên quan) đều ghim `22.1.1` là chủ đích, không phải nhầm lẫn — lý do đầy đủ ở
+[ADR 0003](./docs/adr/0003-cli-vs-core-version-pin.md).
+
+## Giới hạn
+
+Đây là tài liệu học/dạy Signals, **không phải** production template. Không có: auth thật, backend
+thật (`core/data/todo-api.ts` chỉ giả lập bằng `setTimeout`), offline-first, i18n, hay bất kỳ
+chiến lược error-reporting/monitoring nào ngoài phạm vi demo. Đem nguyên xi cấu trúc này vào một
+app production cần cân nhắc lại, không copy máy móc — xem
+[`docs/comparison-state-management.md`](./docs/comparison-state-management.md) để biết khi nào
+signal store thuần (như ở đây) là lựa chọn phù hợp so với các pattern khác.

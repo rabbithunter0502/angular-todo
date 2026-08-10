@@ -2,6 +2,15 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TodoStore } from './todo-store';
 
+/**
+ * Mỗi test dưới đây không chỉ kiểm tra hành vi — nó là bằng chứng runtime cho một nguyên lý cụ
+ * thể trong docs/signals-deep-dive.md, không phải lời khuyên suông:
+ * - 'toggling replaces the array...' -> §3 (equal mặc định là Object.is, không deep-equal).
+ * - 'emits a completionEvents pulse...' -> §9.1 / docs/case-studies/completion-toast-race-condition.md
+ *   (effect không nên suy luận "chuyện gì vừa xảy ra" bằng diff state theo thời gian).
+ * - 'draftTitle (linkedSignal) tracks...' -> §6 và docs/adr/0004-linkedsignal-draft-title.md
+ *   (state ghi được nhưng tự reset theo nguồn khác).
+ */
 describe('TodoStore', () => {
   let store: TodoStore;
 
