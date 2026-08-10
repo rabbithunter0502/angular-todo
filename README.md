@@ -9,6 +9,11 @@ không NgRx, không RxJS store.
 Repo này là **tài liệu tự học/giảng dạy Signals trước, app demo sau** — xem mục
 [Giới hạn](#giới-hạn) trước khi coi đây là template production.
 
+🖥️ **Đọc ngay trong app, không cần mở `src/`** — chạy `npm start` rồi bấm tab **📖 Tài liệu**: mọi
+file dưới đây (README, ADR, case study, so sánh, bài tập...) được render thành một trang tài liệu
+có sidebar, tìm kiếm, mục lục tự sinh theo heading, và link điều hướng qua lại giữa các tài liệu —
+xem `src/app/features/docs/`.
+
 📖 **[docs/signals-deep-dive.md](./docs/signals-deep-dive.md)** — giải thích Signals từ chính
 source code của Angular (permalink pinned theo tag `v22.1.1`, khớp version đang ghim trong
 `package.json`), map từng primitive vào code thật trong app này, một case study bug thật gặp
@@ -45,7 +50,9 @@ npm run build && npm run e2e                  # Playwright chạy trên chính b
 src/app/
   core/
     models/todo.model.ts       # Todo, TodoFilter
+    models/doc.model.ts        # DocEntry, DocCategory — khai báo cho docs viewer
     data/todo-api.ts           # nguồn dữ liệu giả lập (cho resource())
+    data/docs-registry.ts      # danh sách + metadata mọi tài liệu render trong app
     state/todo-store.ts        # TodoStore — signal/computed/effect/linkedSignal/resource
   features/todo/
     todo-shell/                # bố cục tổng
@@ -53,9 +60,16 @@ src/app/
     todo-stats/                 # thống kê, presentational (input())
     todo-list/                   # danh sách + toast hoàn tất (effect() + onCleanup)
     todo-item/                   # một dòng việc, sửa/xoá/hoàn tất (input()/output())
+  features/docs/
+    markdown-renderer.ts        # markdown -> HTML (marked) + heading id/mục lục/link nội bộ
+    docs-viewer/                # sidebar + nội dung, resource() fetch từng file .md
 e2e/                            # Playwright E2E, chạy trên bản build production
 .github/workflows/pipeline.yml  # lint -> unit-test -> build -> e2e -> deploy (Pages)
 ```
+
+Các file `.md` (README, `docs/`, `EXERCISES.md`, `CONTRIBUTING.md`) được publish thành static
+asset qua mấy entry `assets` thêm trong `angular.json`, để `docs-viewer` `fetch()` được lúc chạy —
+xem entry đó nếu thêm tài liệu mới ở một thư mục khác `docs/`.
 
 ## CI/CD
 
