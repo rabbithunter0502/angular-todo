@@ -1,1 +1,10 @@
-<app-todo-shell />
+<nav class="tabs">
+  <button type="button" [class.active]="view() === 'todo'" (click)="showTodo()">✅ Todo App</button>
+  <button type="button" [class.active]="view() === 'docs'" (click)="showDocs()">📖 Tài liệu</button>
+</nav>
+
+@if (view() === 'todo') {
+  <app-todo-shell />
+} @else {
+  <app-docs-viewer />
+}

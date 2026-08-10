@@ -1,0 +1,73 @@
+<section class="docs">
+  <aside class="sidebar">
+    <input
+      class="filter"
+      type="search"
+      placeholder="Tìm tài liệu…"
+      [value]="filterText()"
+      (input)="filterText.set($any($event.target).value)"
+    />
+
+    <nav>
+      @for (category of filteredCategories(); track category.label) {
+        <div class="category">
+          <h2>{{ category.label }}</h2>
+          <ul>
+            @for (doc of category.docs; track doc.id) {
+              <li>
+                <button
+                  type="button"
+                  class="doc-link"
+                  [class.active]="doc.id === selectedDoc().id"
+                  (click)="selectDoc(doc.id)"
+                >
+                  <span class="title">{{ doc.title }}</span>
+                  <span class="description">{{ doc.description }}</span>
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      } @empty {
+        <p class="empty">Không tìm thấy tài liệu nào khớp.</p>
+      }
+    </nav>
+  </aside>
+
+  <div class="content-pane" #contentPane>
+    <header class="doc-header">
+      <h1>{{ selectedDoc().title }}</h1>
+      <p>{{ selectedDoc().description }}</p>
+    </header>
+
+    @if (rendered()?.headings?.length) {
+      <nav class="toc">
+        <span class="toc-label">Mục lục</span>
+        <ul>
+          @for (heading of rendered()!.headings; track heading.slug) {
+            <li [class.sub]="heading.depth === 3">
+              <a
+                href="#{{ heading.slug }}"
+                (click)="$event.preventDefault(); jumpToHeading(heading.slug)"
+              >
+                {{ heading.text }}
+              </a>
+            </li>
+          }
+        </ul>
+      </nav>
+    }
+
+    @if (isLoading()) {
+      <p class="status">Đang tải…</p>
+    } @else if (loadError()) {
+      <p class="status error">⚠ {{ loadError() }}</p>
+    } @else if (rendered()) {
+      <article
+        class="markdown-body"
+        (click)="onContentClick($event)"
+        [innerHTML]="rendered()!.html"
+      ></article>
+    }
+  </div>
+</section>
