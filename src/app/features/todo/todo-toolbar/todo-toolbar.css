@@ -33,6 +33,16 @@
   align-items: center;
 }
 
+/* Bọc riêng ba nút lọc để `role="radiogroup"` chỉ chứa đúng các `role="radio"` — nút "Xoá đã
+   xong" phải là anh em bên ngoài. Lặp lại layout của `.filters` để giao diện không đổi, và
+   `.clear-button { margin-left: auto }` vẫn đẩy được sang phải vì nó vẫn là con của `.filters`. */
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
 .filter-button,
 .clear-button {
   padding: 0.35rem 0.8rem;

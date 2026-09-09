@@ -1,0 +1,20 @@
+{
+  "$comment": [
+    "Nguồn sự thật DUY NHẤT cho 'docs đang đọc source Angular ở version nào'.",
+    "Cố ý TÁCH khỏi version runtime trong package.json: package.json chạy theo patch mới nhất",
+    "(Dependabot bump hàng tuần), còn pin dưới đây chỉ đổi khi có người ngồi xuống kiểm tra lại",
+    "các anchor #L... trong permalink — vì swap SHA thì luôn 'thành công', nhưng số dòng trong",
+    "source Angular có thể đã dịch chuyển và anchor sẽ trỏ nhầm code trong im lặng.",
+    "Quy trình đổi pin: xem mục 'Upgrade checklist' trong CONTRIBUTING.md.",
+    "Kiểm tra: `npm run check:docs` (bắt buộc, chạy trong CI) và `npm run check:permalinks` (thủ công).",
+    "stalePinsAllowedIn: file mà việc kể lại pin cũ chính là nội dung của nó (ADR 0007). Thêm vào đây phải là quyết định có ý thức, không phải cách im lặng cho check:docs xanh."
+  ],
+  "angularVersion": "22.1.5",
+  "angularTag": "v22.1.5",
+  "angularSha": "468b65b74566537456c192ac4281795c5a1e1a5e",
+  "toolingVersion": "22.1.7",
+  "cliVersion": "21.2.20",
+  "repoSha": "9cc370cb01fad649b8396fbb3f41ee1e5d4f9f94",
+  "stalePins": ["22.1.1", "7c15737f50c0f22b2f04e138f18ec862ac446d09"],
+  "stalePinsAllowedIn": ["docs/adr/0007-version-upgrade-policy.md"]
+}

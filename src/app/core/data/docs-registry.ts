@@ -64,7 +64,7 @@ export const DOC_CATEGORIES: readonly DocCategory[] = [
       {
         id: 'adr-0003',
         title: '0003 — Ghim CLI vs core',
-        description: '@angular/cli@^21 trong khi framework là 22.1.1 — chủ đích, không nhầm lẫn.',
+        description: '@angular/cli@^21 trong khi framework là 22.1.5 — chủ đích, không nhầm lẫn.',
         path: 'docs/adr/0003-cli-vs-core-version-pin.md',
       },
       {
@@ -72,6 +72,24 @@ export const DOC_CATEGORIES: readonly DocCategory[] = [
         title: '0004 — linkedSignal cho draftTitle',
         description: 'Vì sao ô sửa tên việc dùng linkedSignal thay vì signal + effect.',
         path: 'docs/adr/0004-linkedsignal-draft-title.md',
+      },
+      {
+        id: 'adr-0005',
+        title: '0005 — OnPush mặc định từ v22',
+        description: 'Vì sao không component nào còn khai báo changeDetection tường minh.',
+        path: 'docs/adr/0005-onpush-mac-dinh-v22.md',
+      },
+      {
+        id: 'adr-0006',
+        title: '0006 — @Service thay @Injectable',
+        description: 'Decorator mới của v22, đổi bằng chính migration của Angular.',
+        path: 'docs/adr/0006-service-decorator.md',
+      },
+      {
+        id: 'adr-0007',
+        title: '0007 — Chính sách version & upgrade',
+        description: 'Vì sao docs pin được phép tụt sau package.json, và cơ chế canh hai bên.',
+        path: 'docs/adr/0007-version-upgrade-policy.md',
       },
     ],
   },

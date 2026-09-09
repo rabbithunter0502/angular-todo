@@ -79,3 +79,34 @@ test('clearCompleted removes every completed todo', async ({ page }) => {
   await expect(page.locator('.row.completed')).toHaveCount(0);
   await expect(page.locator('.row')).toHaveCount(2);
 });
+
+test('bộ lọc là một radiogroup thật: mũi tên vừa chuyển focus vừa chọn', async ({ page }) => {
+  const filters = page.locator('.filter-button');
+
+  // Roving tabindex: chỉ nút đang chọn ("Tất cả") nằm trong thứ tự Tab.
+  await expect(filters.nth(0)).toHaveAttribute('aria-checked', 'true');
+  await expect(filters.nth(0)).toHaveAttribute('tabindex', '0');
+  await expect(filters.nth(1)).toHaveAttribute('tabindex', '-1');
+
+  await filters.nth(0).focus();
+  await page.keyboard.press('ArrowRight');
+
+  // Khác `tablist`: trong radiogroup, mũi tên chọn luôn chứ không chỉ di chuyển focus — nên danh
+  // sách phải lọc ngay ("Đang làm" → 2 việc chưa xong trong seed data).
+  await expect(filters.nth(1)).toBeFocused();
+  await expect(filters.nth(1)).toHaveAttribute('aria-checked', 'true');
+  await expect(filters.nth(0)).toHaveAttribute('aria-checked', 'false');
+  await expect(page.locator('.row')).toHaveCount(2);
+
+  // Cuộn vòng ở hai đầu: từ item đầu bấm ArrowLeft phải về item cuối.
+  await filters.nth(0).click();
+  await page.keyboard.press('ArrowLeft');
+  await expect(filters.nth(2)).toBeFocused();
+  await expect(page.locator('.row')).toHaveCount(1);
+});
+
+test('role="list" thực sự có listitem bên trong', async ({ page }) => {
+  // `<app-todo-item>` là custom element, không tự mang role — nếu host thiếu `role="listitem"`
+  // thì đây là một cái list rỗng dưới góc nhìn accessibility tree.
+  await expect(page.getByRole('list').getByRole('listitem')).toHaveCount(3);
+});

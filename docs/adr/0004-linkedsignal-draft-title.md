@@ -31,6 +31,35 @@ Chọn `linkedSignal` (phương án 4) — xem implementation tại
 [`TodoStore.draftTitle`](https://github.com/rabbithunter0502/angular-todo/blob/9cc370cb01fad649b8396fbb3f41ee1e5d4f9f94/src/app/core/state/todo-store.ts#L80-L90)
 và giải thích cơ chế tại [`docs/signals-deep-dive.md` §6](../signals-deep-dive.md).
 
+## Cập nhật v22.1 — `linkedSignal` có thêm option `set`
+
+Angular v22.1 bổ sung một option cho đúng cái primitive mà ADR này bàn tới
+(`feat: add custom set option to linkedSignal`). Chữ ký đầy đủ bây giờ:
+
+```ts
+linkedSignal<S, D>(options: {
+  source: () => S;
+  computation: (source: S, previous?: { source: S; value: D }) => D;
+  equal?: ValueEqualityFn<D>;
+  debugName?: string;
+  set?: (value: D, rawSet: (value: D) => void) => void; // ← mới từ 22.1
+}): WritableSignal<D>;
+```
+
+`set` chặn được **đường ghi** — thứ mà trước đây `linkedSignal` không cho can thiệp: giữa hai lần
+reset nó là một `WritableSignal` trần, `.set()` vào là vào thẳng. Giờ có thể chuẩn hoá/validate
+tại chỗ, thay vì bọc thêm một method ở ngoài:
+
+```ts
+set: (value, rawSet) => rawSet(value.trimStart()),
+```
+
+**Quyết định: biết nhưng không dùng ở đây.** `draftTitle` là ô người dùng đang gõ dở — chuẩn hoá
+trên từng phím bấm là đúng loại thay đổi làm người dùng khó chịu (gõ dấu cách giữa chừng bị nuốt).
+Việc `trim()` đã nằm đúng chỗ của nó trong `commitEdit()`, tức là lúc chốt giá trị. Ghi lại ở đây
+vì tài liệu này khẳng định "giữa hai lần reset, `draftTitle` là một `WritableSignal` bình thường";
+từ 22.1, câu đó vẫn đúng nhưng **không còn đầy đủ** — nay có một cái móc để đổi điều đó.
+
 ## Đánh đổi chấp nhận
 
 - `linkedSignal` là primitive ít quen thuộc hơn `signal`/`computed`/`effect` — cần người đọc nắm

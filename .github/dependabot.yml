@@ -1,0 +1,51 @@
+version: 2
+
+# Nhịp release của Angular từ v22: major mỗi 12 tháng, 4–6 minor mỗi major, patch gần như hàng
+# tuần (nguồn: adev `reference/releases.md`). Nghĩa là thứ cần tự động hoá ở đây là **patch**,
+# không phải major — major tiếp theo (v23) rơi vào khoảng 06/2027.
+#
+# Xem `docs/adr/0007-version-upgrade-policy.md` cho lý do đầy đủ của từng `ignore` bên dưới.
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # Tách LÀM HAI, không gộp một PR: framework (`22.1.5`) và tooling (`22.1.7`) chạy trên hai
+      # train version khác nhau. Gộp chung thì diff đọc như một lỗi đánh máy.
+      angular-framework:
+        patterns:
+          - '@angular/core'
+          - '@angular/common'
+          - '@angular/compiler'
+          - '@angular/compiler-cli'
+          - '@angular/platform-browser'
+      angular-tooling:
+        patterns:
+          - '@angular/build'
+          - '@angular/cli'
+      dev-tooling:
+        patterns:
+          - 'prettier'
+          - 'vitest'
+          - 'jsdom'
+          - '@playwright/test'
+          - '@types/node'
+          - 'http-server'
+    ignore:
+      # ADR 0003: `@angular/cli` cố ý ở lại v21 vì container build chạy Node v22.22.2, thấp hơn
+      # đúng một patch so với mức `^22.22.3` mà binary `ng` của CLI 22 yêu cầu. Không chặn ở đây
+      # thì Dependabot mở lại PR "bump lên 22.x" mỗi tuần, và tuần nào cũng phải đóng tay.
+      - dependency-name: '@angular/cli'
+        update-types: ['version-update:semver-major']
+      # TypeScript 7 đã ra, nhưng `@angular/compiler-cli@22` peer `typescript: ">=6.0 <6.1"`.
+      # Không chặn thì mỗi tuần có một PR đỏ CI vì xung đột peer, không phải vì code sai.
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

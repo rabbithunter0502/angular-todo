@@ -61,6 +61,24 @@ Một signal trung gian `debouncedQuery`, cập nhật qua `effect()` theo dõi 
 loader: ... })` chỉ load lại khi `debouncedQuery` thực sự đổi (sau khi ngừng gõ 300ms).
 </details>
 
+> **Ghi chú v22 — làm xong bài này rồi hãy đọc.** Angular v22 đã ship sẵn primitive cho đúng việc
+> trên: `debounced(source, wait)` (`@experimental 22.0`), trả về một `Resource<T>` là bản debounce
+> của một signal.
+>
+> ```ts
+> import { debounced } from '@angular/core';
+>
+> protected readonly query = signal('');
+> private readonly debouncedQuery = debounced(this.query, 300); // Resource<string>
+> // rồi: resource({ params: () => this.debouncedQuery.value(), loader: ... })
+> ```
+>
+> Bài tập **cố ý giữ nguyên** yêu cầu dựng tay: tự viết một lần là cách duy nhất để thấy rõ vì sao
+> cần `onCleanup`, và điều gì hỏng nếu thiếu nó. Nhưng đừng mang pattern thủ công đó vào code
+> thật ở v22 — hãy dùng `debounced()`. Xem
+> [§7 `resource()`](./docs/signals-deep-dive.md#7-resource--ổn-định-publicapi-220-đúng-từ-bản-v22-này),
+> mục "Ba bổ sung của v22".
+
 ---
 
 ## Bài 3 — Undo/redo bằng `linkedSignal`
