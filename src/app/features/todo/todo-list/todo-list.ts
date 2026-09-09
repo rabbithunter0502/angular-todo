@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { TodoStore } from '../../../core/state/todo-store';
 import { TodoItemComponent } from '../todo-item/todo-item';
 
@@ -24,7 +24,6 @@ import { TodoItemComponent } from '../todo-item/todo-item';
 @Component({
   selector: 'app-todo-list',
   imports: [TodoItemComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './todo-list.html',
   styleUrl: './todo-list.css',
 })

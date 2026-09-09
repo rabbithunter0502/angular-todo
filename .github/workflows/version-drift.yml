@@ -1,0 +1,42 @@
+name: Version drift
+
+# Dependabot lo phần bump patch. Job này lo phần Dependabot KHÔNG thấy: docs pin đã tụt lại bao xa
+# so với runtime, và có package nào đang nằm ngoài tầm với của các `ignore` trong dependabot.yml.
+#
+# Cố ý chỉ *báo cáo*, không tự sửa và không fail: đây là thứ để đọc mỗi tháng một lần rồi quyết
+# định, không phải một cổng chặn. Xem `docs/adr/0007-version-upgrade-policy.md`.
+
+on:
+  schedule:
+    - cron: '0 9 1 * *' # 09:00 UTC ngày 1 hằng tháng
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    name: Báo cáo drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      - name: Docs pin vs runtime
+        run: npm run check:docs
+
+      - name: Package đã cũ
+        # `npm outdated` trả exit code 1 khi CÓ package cũ — đúng nghĩa "có gì để đọc", không phải
+        # lỗi. `|| true` để job không đỏ vì chuyện đó.
+        run: npm outdated || true
+
+      - name: Angular mới nhất trên npm
+        run: |
+          echo "runtime hiện tại : $(node -p "require('./package.json').dependencies['@angular/core']")"
+          echo "docs pin         : $(node -p "require('./docs/pinned-source.json').angularVersion")"
+          echo "npm latest core  : $(npm view @angular/core version)"
+          echo "npm latest build : $(npm view @angular/build version)"

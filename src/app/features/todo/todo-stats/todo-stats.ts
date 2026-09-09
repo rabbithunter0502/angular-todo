@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 export interface TodoStats {
   readonly total: number;
@@ -19,7 +19,6 @@ export interface TodoStats {
  */
 @Component({
   selector: 'app-todo-stats',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './todo-stats.html',
   styleUrl: './todo-stats.css',
 })

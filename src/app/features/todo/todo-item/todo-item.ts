@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { Todo } from '../../../core/models/todo.model';
 
 /**
@@ -10,7 +10,11 @@ import { Todo } from '../../../core/models/todo.model';
  */
 @Component({
   selector: 'app-todo-item',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // `TodoListComponent` bọc danh sách trong `role="list"`, nhưng `<app-todo-item>` là custom
+  // element nên mặc định không mang role nào — kết quả là một cái list rỗng dưới góc nhìn screen
+  // reader: đúng container, không có item nào bên trong. `role="listitem"` trên host trả lại
+  // đúng quan hệ cha–con mà `role="list"` đang hứa hẹn.
+  host: { role: 'listitem' },
   templateUrl: './todo-item.html',
   styleUrl: './todo-item.css',
 })

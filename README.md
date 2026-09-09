@@ -2,7 +2,7 @@
 
 [![Pipeline](https://github.com/rabbithunter0502/angular-todo/actions/workflows/pipeline.yml/badge.svg)](https://github.com/rabbithunter0502/angular-todo/actions/workflows/pipeline.yml)
 
-Todo app dựng bằng **Angular v22** (`@angular/core@22.1.1`), zoneless, dùng **Signals**
+Todo app dựng bằng **Angular v22** (`@angular/core@22.1.5`), zoneless, dùng **Signals**
 (`signal`, `computed`, `effect`, `linkedSignal`, `resource`) làm toàn bộ state management —
 không NgRx, không RxJS store.
 
@@ -15,8 +15,10 @@ có sidebar, tìm kiếm, mục lục tự sinh theo heading, và link điều h
 xem `src/app/features/docs/`.
 
 📖 **[docs/signals-deep-dive.md](./docs/signals-deep-dive.md)** — giải thích Signals từ chính
-source code của Angular (permalink pinned theo tag `v22.1.1`, khớp version đang ghim trong
-`package.json`), map từng primitive vào code thật trong app này, một case study bug thật gặp
+source code của Angular (permalink pinned theo tag `v22.1.5` — xem
+[`docs/pinned-source.json`](./docs/pinned-source.json); pin này được phép tụt sau version runtime
+trong `package.json`, lý do ở [ADR 0007](./docs/adr/0007-version-upgrade-policy.md)), map từng
+primitive vào code thật trong app này, một case study bug thật gặp
 phải khi build demo (và cách sửa đúng theo nguyên tắc của Angular), và một checklist tư duy
 senior khi làm việc với Signals. Tài liệu liên quan:
 
@@ -96,8 +98,29 @@ Chi phí: repo này là **public**, nên cả GitHub Actions (mọi job ở trê
 ## Ghi chú
 
 Khai báo `@angular/cli@^21.2.20` trong khi mọi package framework (`@angular/core` và các gói
-liên quan) đều ghim `22.1.1` là chủ đích, không phải nhầm lẫn — lý do đầy đủ ở
+liên quan) đều ghim `22.1.5` là chủ đích, không phải nhầm lẫn — lý do đầy đủ ở
 [ADR 0003](./docs/adr/0003-cli-vs-core-version-pin.md).
+
+## Bắt kịp nhịp release của Angular
+
+Từ v22, Angular đổi nhịp: **major mỗi 12 tháng** (v23 ~06/2027), 4–6 minor mỗi major, patch gần
+như hàng tuần. Nghĩa là thứ đáng tự động hoá là patch, còn major thì còn xa.
+
+Repo này tách **hai** version, cố ý — chi tiết ở
+[ADR 0007](./docs/adr/0007-version-upgrade-policy.md):
+
+|                                                          | Ghim ở đâu                                             | Nhịp đổi                                         |
+| -------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------ |
+| Version **runtime** (app compile bằng gì)                | `package.json`                                         | Mỗi patch, Dependabot bump tự động hàng tuần     |
+| **Docs pin** (docs đang đọc source Angular ở commit nào) | [`docs/pinned-source.json`](./docs/pinned-source.json) | Thủ công, chỉ khi đã kiểm tra lại anchor `#L...` |
+
+```bash
+npm run check:docs         # CI chạy: docs có còn nhất quán với docs pin không
+npm run check:permalinks   # thủ công: anchor #L... còn trỏ đúng đoạn code cũ không
+```
+
+Quy trình nâng pin từng bước: mục **Upgrade checklist** trong
+[`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ## Giới hạn
 

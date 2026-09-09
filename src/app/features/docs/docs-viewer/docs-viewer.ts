@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   DOCUMENT,
   ElementRef,
@@ -29,7 +28,6 @@ const DEFAULT_DOC_ID = 'readme';
  */
 @Component({
   selector: 'app-docs-viewer',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   // The rendered markdown is injected via `[innerHTML]`, so it never goes through Angular's
   // template compiler — emulated encapsulation's `_ngcontent-*` attribute never lands on it,
   // and scoped selectors like `.markdown-body h2` would silently never match. `None` makes this

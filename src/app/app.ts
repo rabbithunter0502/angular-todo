@@ -4,6 +4,15 @@ import { TodoShellComponent } from './features/todo/todo-shell/todo-shell';
 
 type AppView = 'todo' | 'docs';
 
+/**
+ * Không component nào trong repo này khai báo `changeDetection` — và đó là chủ đích, không phải
+ * bỏ sót. Từ v22, component không set `changeDetection` mặc định là `OnPush` (breaking change
+ * của v22.0: "Component with undefined `changeDetection` property are now `OnPush` by default";
+ * muốn hành vi cũ phải viết rõ `ChangeDetectionStrategy.Eager`). Giữ lại dòng
+ * `changeDetection: ChangeDetectionStrategy.OnPush` ở mỗi component chỉ là boilerplate thời v21
+ * — và trong một repo lấy "đây là Angular hiện tại trông như thế nào" làm luận điểm chính, nó dạy
+ * sai. Xem [ADR 0005](../../docs/adr/0005-onpush-mac-dinh-v22.md).
+ */
 @Component({
   selector: 'app-root',
   imports: [TodoShellComponent, DocsViewerComponent],

@@ -11,16 +11,30 @@
 </form>
 
 <div class="filters">
-  @for (filter of filters; track filter) {
-    <button
-      type="button"
-      class="filter-button"
-      [class.active]="activeFilter() === filter"
-      (click)="selectFilter(filter)"
-    >
-      {{ filter === 'all' ? 'Tất cả' : filter === 'active' ? 'Đang làm' : 'Hoàn tất' }}
-    </button>
-  }
+  <!--
+    `role="radiogroup"` + `role="radio"`: ba nút lọc là một lựa chọn loại trừ lẫn nhau, nhưng nếu
+    chỉ để `<button>` trần thì screen reader đọc ra ba nút rời rạc, không nói được "cái nào đang
+    chọn" hay "chọn 1 trong 3". `aria-checked` mang trạng thái, `tabindex` roving (chỉ nút đang
+    chọn nhận Tab) + phím mũi tên là hành vi bàn phím chuẩn của radiogroup.
+    Nút "Xoá đã xong" cố ý nằm NGOÀI radiogroup — nó là một hành động, không phải một lựa chọn.
+  -->
+  <div class="filter-group" role="radiogroup" aria-label="Lọc danh sách việc">
+    @for (filter of filters; track filter) {
+      <button
+        #filterButton
+        type="button"
+        class="filter-button"
+        role="radio"
+        [attr.aria-checked]="activeFilter() === filter"
+        [attr.tabindex]="activeFilter() === filter ? 0 : -1"
+        [class.active]="activeFilter() === filter"
+        (click)="selectFilter(filter)"
+        (keydown)="onFilterKeydown($event, filter)"
+      >
+        {{ filter === 'all' ? 'Tất cả' : filter === 'active' ? 'Đang làm' : 'Hoàn tất' }}
+      </button>
+    }
+  </div>
 
   <button type="button" class="clear-button" (click)="clearCompleted.emit()">Xoá đã xong</button>
 </div>

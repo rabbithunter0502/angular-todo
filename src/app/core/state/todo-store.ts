@@ -1,5 +1,5 @@
 import {
-  Injectable,
+  Service,
   computed,
   effect,
   linkedSignal,
@@ -17,8 +17,15 @@ const STORAGE_KEY = 'angular-todo::v1';
  * no NgRx/Akita, no RxJS `BehaviorSubject`. This is the "service with signals" pattern from the
  * Angular style guide: components inject this and only ever read `Signal`s (never the private
  * `WritableSignal`s), so every write funnels through the methods below.
+ *
+ * `@Service()` là decorator mới của v22, thay cho `@Injectable({ providedIn: 'root' })`:
+ * `autoProvided` mặc định là `true`, nghĩa là service tự có mặt trong root injector — đúng hành vi
+ * cũ, chỉ ngắn hơn và không còn phải nhắc lại `providedIn` ở mọi service. (Muốn tự khai báo trong
+ * một `providers` list thì dùng `@Service({ autoProvided: false })`.) Đổi bằng chính migration
+ * chính chủ: `ng generate @angular/core:service-migration`. Xem
+ * [ADR 0006](../../../../docs/adr/0006-service-decorator.md).
  */
-@Injectable({ providedIn: 'root' })
+@Service()
 export class TodoStore {
   // ── Source signals ────────────────────────────────────────────────────────────────────────
   // These are the only "producers" that don't derive from something else. Every other signal in
