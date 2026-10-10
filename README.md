@@ -2,7 +2,7 @@
 
 [![Pipeline](https://github.com/rabbithunter0502/angular-todo/actions/workflows/pipeline.yml/badge.svg)](https://github.com/rabbithunter0502/angular-todo/actions/workflows/pipeline.yml)
 
-Todo app dựng bằng **Angular v22** (`@angular/core@22.1.5`), zoneless, dùng **Signals**
+Todo app dựng bằng **Angular v22** (`@angular/core@22.2.2`), zoneless, dùng **Signals**
 (`signal`, `computed`, `effect`, `linkedSignal`, `resource`) làm toàn bộ state management —
 không NgRx, không RxJS store.
 
@@ -15,14 +15,14 @@ có sidebar, tìm kiếm, mục lục tự sinh theo heading, và link điều h
 xem `src/app/features/docs/`.
 
 📖 **[docs/signals-deep-dive.md](./docs/signals-deep-dive.md)** — giải thích Signals từ chính
-source code của Angular (permalink pinned theo tag `v22.1.5` — xem
+source code của Angular (permalink pinned theo tag `v22.2.2` — xem
 [`docs/pinned-source.json`](./docs/pinned-source.json); pin này được phép tụt sau version runtime
 trong `package.json`, lý do ở [ADR 0007](./docs/adr/0007-version-upgrade-policy.md)), map từng
 primitive vào code thật trong app này, một case study bug thật gặp
 phải khi build demo (và cách sửa đúng theo nguyên tắc của Angular), và một checklist tư duy
 senior khi làm việc với Signals. Tài liệu liên quan:
 
-- [`docs/adr/`](./docs/adr/) — quyết định thiết kế (vì sao zoneless, vì sao không NgRx, vì sao
+- [`docs/adr/`](./docs/adr/) — quyết định thiết kế (vì sao zoneless, vì sao không NgRx, compiler Rust, vì sao
   `linkedSignal` cho `draftTitle`...), theo khuôn ADR.
 - [`docs/case-studies/`](./docs/case-studies/) — bug thật gặp phải khi build demo, kể lại theo
   khuôn triệu chứng → nguyên nhân → giải pháp → bài học.
@@ -98,8 +98,30 @@ Chi phí: repo này là **public**, nên cả GitHub Actions (mọi job ở trê
 ## Ghi chú
 
 Khai báo `@angular/cli@^21.2.20` trong khi mọi package framework (`@angular/core` và các gói
-liên quan) đều ghim `22.1.5` là chủ đích, không phải nhầm lẫn — lý do đầy đủ ở
+liên quan) đều ghim `22.2.2` là chủ đích, không phải nhầm lẫn — lý do đầy đủ ở
 [ADR 0003](./docs/adr/0003-cli-vs-core-version-pin.md).
+
+## Angular 22.2 có gì mới (và liên quan gì tới repo này)
+
+Nâng từ bản trước lên `22.2.2` (22.2.0 ra ngày 2026-09-23; `22.2.1` và `22.2.2` là patch). Chỉ liệt
+kê các `feat` chạm tới thứ repo này dùng — nguồn: `CHANGELOG.md` của Angular:
+
+| Thay đổi                                                               | Liên quan tới repo                                                                                          |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Template truy cập được thành viên `private`                            | Có thể bỏ `protected` chỉ để template đọc được; **chưa đổi code** — `protected` vẫn đúng và quen thuộc hơn. |
+| Option `strictUnclaimedEventNames` (`angularCompilerOptions`)          | Bắt lỗi gõ sai tên `output()` ở template. Chưa bật; cân nhắc khi thêm component có nhiều output.            |
+| Đọc `Injector` từ view/content query                                   | Không dùng — app không có query lấy injector.                                                               |
+| API lập trình cho `ErrorBoundary`, khối `@boundary` (language service) | Không dùng — chưa có error boundary trong app.                                                              |
+| CSS lồng nhau được scope đúng                                          | Không ảnh hưởng — style của app không lồng.                                                                 |
+| Router: `RedirectCommand` ném được, router resources công khai         | Không liên quan — app không cài `@angular/router` (xem `docs-viewer.ts`).                                   |
+| Tiện ích test directive                                                | Chưa dùng; spec hiện tại dùng `TestBed` + `provideZonelessChangeDetection()`.                               |
+
+Không có `feat` nào về compiler Rust trong 22.2. Phần đó được ghi riêng ở
+[ADR 0008](./docs/adr/0008-angular-compiler-rust.md): Oxc Angular Compiler của VoidZero và hướng
+hybrid (Rust frontend + TS backend) của Angular team — **theo dõi, chưa áp dụng**.
+
+Docs pin cũng đã được nâng lên `v22.2.2` sau khi `npm run check:permalinks -- v22.2.2` báo 2/17
+anchor trong `signals-deep-dive.md` bị lệch (`effect.ts`, `resource.ts`) và được sửa số dòng tay.
 
 ## Bắt kịp nhịp release của Angular
 

@@ -64,7 +64,7 @@ export const DOC_CATEGORIES: readonly DocCategory[] = [
       {
         id: 'adr-0003',
         title: '0003 — Ghim CLI vs core',
-        description: '@angular/cli@^21 trong khi framework là 22.1.5 — chủ đích, không nhầm lẫn.',
+        description: '@angular/cli@^21 trong khi framework là 22.2.2 — chủ đích, không nhầm lẫn.',
         path: 'docs/adr/0003-cli-vs-core-version-pin.md',
       },
       {
@@ -90,6 +90,13 @@ export const DOC_CATEGORIES: readonly DocCategory[] = [
         title: '0007 — Chính sách version & upgrade',
         description: 'Vì sao docs pin được phép tụt sau package.json, và cơ chế canh hai bên.',
         path: 'docs/adr/0007-version-upgrade-policy.md',
+      },
+      {
+        id: 'adr-0008',
+        title: '0008 — Compiler Angular bằng Rust',
+        description:
+          'Oxc Angular Compiler và hướng hybrid của Angular team: vì sao theo dõi chứ chưa áp dụng.',
+        path: 'docs/adr/0008-angular-compiler-rust.md',
       },
     ],
   },
