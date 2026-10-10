@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@angular/build": "22.2.2",
-    "@angular/cli": "^21.2.20",
+    "@angular/cli": "^21.2.26",
     "@angular/compiler-cli": "22.2.2",
     "@playwright/test": "1.62.1",
     "@types/node": "22.20.1",
