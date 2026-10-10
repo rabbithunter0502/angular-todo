@@ -49,7 +49,7 @@ npx ng generate @angular/core:service-migration
 # UPDATE src/app/core/state/todo-store.ts
 ```
 
-**Kết quả đáng ghi lại cho ADR 0003:** schematic của `@angular/core@22.1.5` chạy trót lọt qua
+**Kết quả đáng ghi lại cho ADR 0003:** schematic của `@angular/core@22.2.2` chạy trót lọt qua
 `@angular/cli@21.2.23`, đổi đúng cả decorator lẫn import. Rủi ro "CLI 21 không chạy được schematic
 của core 22" là có thật về mặt lý thuyết nhưng **chưa hiện thực hoá** ở trường hợp cụ thể này —
 đúng như ADR 0003 dự đoán, và giờ đã có một điểm dữ liệu thay vì chỉ là phỏng đoán.

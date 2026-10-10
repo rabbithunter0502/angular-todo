@@ -70,7 +70,14 @@ Chỉ đọc các dòng `feat:`, không đọc cả changelog:
 
 ```bash
 curl -sL https://raw.githubusercontent.com/angular/angular/main/CHANGELOG.md \
-  | awk '/^<a name="22\.2\.0">/,/SPLIT MARKER/' | grep 'feat'
+  | awk '/^<a name="22\.3\.0">/,/SPLIT MARKER/' | grep 'feat'
+```
+
+Thêm một lượt grep để canh [ADR 0008](./docs/adr/0008-angular-compiler-rust.md) (compiler Rust):
+
+```bash
+curl -sL https://raw.githubusercontent.com/angular/angular/main/CHANGELOG.md \
+  | awk '/^<a name="22\.3\.0">/,/SPLIT MARKER/' | grep -i 'oxc\|rust\|native'
 ```
 
 Câu hỏi cần trả lời: **có `feat` nào chạm vào primitive mà repo này đang có ADR không?** Nếu có →
@@ -79,8 +86,8 @@ cập nhật ADR/deep-dive tương ứng (ví dụ v22.1 thêm option `set` cho 
 Nguồn tín hiệu tốt hơn changelog là diff của public API golden:
 
 ```bash
-git diff v22.1.5:goldens/public-api/core/index.api.md \
-        v22.2.0:goldens/public-api/core/index.api.md
+git diff v22.2.2:goldens/public-api/core/index.api.md \
+        v22.3.0:goldens/public-api/core/index.api.md
 ```
 
 ### Nâng docs pin (chỉ khi có lý do, ~1 giờ)
@@ -90,10 +97,10 @@ git diff v22.1.5:goldens/public-api/core/index.api.md \
 
 ```bash
 # 1. Anchor còn trỏ đúng đoạn code cũ không? (gọi mạng, nên chạy tay)
-npm run check:permalinks -- v22.2.0
+npm run check:permalinks -- v22.3.0
 
 # 2. Chỉ khi bước 1 xanh: lấy SHA của tag đích
-NEW=$(git ls-remote --tags https://github.com/angular/angular refs/tags/v22.2.0 | cut -f1)
+NEW=$(git ls-remote --tags https://github.com/angular/angular refs/tags/v22.3.0 | cut -f1)
 OLD=$(node -p "require('./docs/pinned-source.json').angularSha")
 grep -rl "$OLD" docs *.md | xargs sed -i "s/$OLD/$NEW/g"
 

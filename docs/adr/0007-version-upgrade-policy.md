@@ -68,7 +68,7 @@ Ba mảnh cơ khí đi kèm:
   pin. Tải từng file ở SHA cũ và ở ref đích rồi so từng đoạn `#L...`, trả lời đúng một câu hỏi:
   _sed SHA có an toàn không?_ Cố ý không đưa vào CI: nó gọi mạng cho từng file, biến một job lint
   tất định thành một job flaky.
-- **`.github/dependabot.yml`** — hai group tách riêng (framework `22.1.5` và tooling `22.1.7` chạy
+- **`.github/dependabot.yml`** — hai group tách riêng (framework `22.2.2` và tooling `22.2.2` chạy
   trên hai train version khác nhau; gộp một PR thì diff đọc như lỗi đánh máy), cộng hai `ignore`
   bắt buộc: major của `@angular/cli` (ADR 0003 cố ý giữ v21) và major của `typescript`
   (`@angular/compiler-cli@22` peer `>=6.0 <6.1`, mà TypeScript 7 đã ra). Thiếu hai dòng này thì
@@ -80,7 +80,7 @@ Lần áp dụng đầu tiên (bump `22.1.1` → `22.1.5`) đã chạy đúng qu
 
 ## Đánh đổi chấp nhận
 
-- Docs có thể nói về `v22.1.5` trong khi app đang chạy `22.1.9`. Đây là điều **cố ý**, và
+- Docs có thể nói về `v22.2.2` trong khi app đang chạy `22.2.9`. Đây là điều **cố ý**, và
   `README.md` cùng header của `signals-deep-dive.md` nói thẳng ra thay vì giấu đi. Cái mất là lời
   hứa "hai con số luôn bằng nhau"; cái được là cả hai đều thực sự được cập nhật.
 - `pinned-source.json` là một khái niệm mới người đóng góp phải biết. Giảm nhẹ bằng mục

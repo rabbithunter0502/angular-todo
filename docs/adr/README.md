@@ -13,11 +13,12 @@ cụ build...), thêm một file mới đánh số tiếp theo, theo đúng khu�
 | -------------------------------------------------- | ----------------------------------------------------------------------- | ---------- |
 | [0001](./0001-zoneless-signals-state.md)           | Zoneless + Signals thay vì Zone.js                                      | Accepted   |
 | [0002](./0002-custom-store-vs-ngrx-signalstore.md) | Tự viết `TodoStore` bằng signal primitives thay vì NgRx/`@ngrx/signals` | Accepted   |
-| [0003](./0003-cli-vs-core-version-pin.md)          | Ghim `@angular/cli@^21` trong khi framework là `22.1.5`                 | Accepted   |
+| [0003](./0003-cli-vs-core-version-pin.md)          | Ghim `@angular/cli@^21` trong khi framework là `22.2.2`                 | Accepted   |
 | [0004](./0004-linkedsignal-draft-title.md)         | `draftTitle` dùng `linkedSignal` thay vì `signal` + `effect`            | Accepted   |
 | [0005](./0005-onpush-mac-dinh-v22.md)              | Bỏ `changeDetection: OnPush` tường minh (v22 đã mặc định)               | Accepted   |
 | [0006](./0006-service-decorator.md)                | `@Service()` thay `@Injectable({ providedIn: 'root' })`                 | Accepted   |
 | [0007](./0007-version-upgrade-policy.md)           | Tách "version runtime" khỏi "docs pin", tự động hoá phần còn lại        | Accepted   |
+| [0008](./0008-angular-compiler-rust.md)            | Compiler Angular viết bằng Rust: theo dõi, chưa áp dụng                 | Accepted   |
 
 Mỗi ADR theo khuôn:
 

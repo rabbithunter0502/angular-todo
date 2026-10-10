@@ -9,12 +9,17 @@
     "Kiểm tra: `npm run check:docs` (bắt buộc, chạy trong CI) và `npm run check:permalinks` (thủ công).",
     "stalePinsAllowedIn: file mà việc kể lại pin cũ chính là nội dung của nó (ADR 0007). Thêm vào đây phải là quyết định có ý thức, không phải cách im lặng cho check:docs xanh."
   ],
-  "angularVersion": "22.1.5",
-  "angularTag": "v22.1.5",
-  "angularSha": "468b65b74566537456c192ac4281795c5a1e1a5e",
-  "toolingVersion": "22.1.7",
+  "angularVersion": "22.2.2",
+  "angularTag": "v22.2.2",
+  "angularSha": "2da8b0b41da0b91cc57eacb329aabc194f01943d",
+  "toolingVersion": "22.2.2",
   "cliVersion": "21.2.20",
   "repoSha": "9cc370cb01fad649b8396fbb3f41ee1e5d4f9f94",
-  "stalePins": ["22.1.1", "7c15737f50c0f22b2f04e138f18ec862ac446d09"],
+  "stalePins": [
+    "22.1.1",
+    "7c15737f50c0f22b2f04e138f18ec862ac446d09",
+    "22.1.5",
+    "468b65b74566537456c192ac4281795c5a1e1a5e"
+  ],
   "stalePinsAllowedIn": ["docs/adr/0007-version-upgrade-policy.md"]
 }

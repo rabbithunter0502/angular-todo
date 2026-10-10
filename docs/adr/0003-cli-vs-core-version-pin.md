@@ -1,10 +1,10 @@
-# 0003 — Ghim `@angular/cli@^21` trong khi framework là `22.1.5`
+# 0003 — Ghim `@angular/cli@^21` trong khi framework là `22.2.2`
 
 ## Bối cảnh
 
 `package.json` của repo này khai báo `@angular/cli@^21.2.20` trong khi mọi package framework
 (`@angular/core`, `common`, `compiler`, `platform-browser`, `compiler-cli`, `@angular/build`) đều
-ghim đúng `22.1.5`. Nhìn thoáng qua trông như nhầm lẫn version — không phải.
+ghim đúng `22.2.2`. Nhìn thoáng qua trông như nhầm lẫn version — không phải.
 
 Môi trường build container đi kèm Node `v22.22.2`. `@angular/cli@22.x` (và `@angular/build@22.x`)
 tự kiểm tra Node version lúc khởi động và **từ chối chạy** nếu thấp hơn `22.22.3` — đọc trực tiếp
@@ -21,7 +21,7 @@ hạn của framework Angular (`@angular/core`), chỉ là guard cứng trong bi
    [`docs/signals-deep-dive.md` §7](../signals-deep-dive.md)), đi ngược mục tiêu demo là dùng
    Angular v22 thật.
 3. **Ghim `@angular/cli@^21.2.20`** (thoả điều kiện Node của CLI 21: `^20.19.0 || ^22.12.0 ||
-   > =24`) làm công cụ chạy lệnh, giữ nguyên mọi package framework ở `22.1.5`.
+   > =24`) làm công cụ chạy lệnh, giữ nguyên mọi package framework ở `22.2.2`.
 
 Phương án 3 hợp lệ về mặt kỹ thuật vì `@angular/build` chỉ tự kiểm tra _tương thích với
 `@angular/core`_ (`assertCompatibleAngularVersion` trong `@angular/build/src/utils/version.js`, so
@@ -30,7 +30,7 @@ guard Node chỉ nằm ở `ng.js` của CLI, không nằm ở `@angular/build`.
 
 ## Quyết định
 
-Chọn phương án 3. Kết quả: build, test, serve đều chạy bằng đúng runtime `@angular/core@22.1.5`,
+Chọn phương án 3. Kết quả: build, test, serve đều chạy bằng đúng runtime `@angular/core@22.2.2`,
 chỉ mượn "vỏ" điều phối lệnh (`ng build`, `ng test`, `ng serve`) từ CLI 21.
 
 ## Ràng buộc này hẹp hơn vẻ ngoài của nó (bổ sung)
@@ -59,7 +59,7 @@ góp mới rơi vào đúng vùng đã kiểm chứng.
 
 - `ng update`/`ng generate` chạy qua CLI 21 có thể thiếu vài schematic/flag mới chỉ có ở CLI 22 —
   là rủi ro cần biết trước khi mở rộng. **Đã có một điểm dữ liệu thực tế:** schematic
-  `service-migration` của `@angular/core@22.1.5` chạy trót lọt qua `@angular/cli@21.2.23`
+  `service-migration` của `@angular/core@22.2.2` chạy trót lọt qua `@angular/cli@21.2.23`
   (xem [ADR 0006](./0006-service-decorator.md)). Một mẫu không chứng minh được điều gì tổng quát,
   nhưng ít nhất rủi ro này chưa hiện thực hoá.
 - Vì CLI 21 đã rời **active support** từ 2026-06-03 (nay chỉ còn nhận critical fix và security

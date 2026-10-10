@@ -1,8 +1,8 @@
 # Angular Signals — đọc từ source code, demo thật, và tư duy senior
 
 > Toàn bộ phần "từ source code" dưới đây được trích từ repo `angular/angular` tại đúng tag
-> **[`v22.1.5`](https://github.com/angular/angular/tree/v22.1.5)**
-> (commit [`468b65b`](https://github.com/angular/angular/commit/468b65b74566537456c192ac4281795c5a1e1a5e))
+> **[`v22.2.2`](https://github.com/angular/angular/tree/v22.2.2)**
+> (commit [`2da8b0b`](https://github.com/angular/angular/commit/2da8b0b41da0b91cc57eacb329aabc194f01943d))
 > — một tag cố định, không phải một snapshot `main` có thể trôi theo thời gian. Pin này khai báo ở
 > [`docs/pinned-source.json`](./pinned-source.json) và **được phép tụt lại sau** version runtime
 > trong `package.json`: đổi pin nghĩa là phải kiểm tra lại từng anchor `#L...` bên dưới, nên nó là
@@ -12,7 +12,7 @@
 > (bỏ JSDoc, gộp bớt guard clause) để dễ đọc hơn cho mục đích giảng dạy; permalink luôn trỏ tới
 > đoạn code thật đầy đủ, có ghi chú rõ khi bản rút gọn bỏ sót chi tiết đáng kể.
 >
-> Phần demo là app Todo thật nằm trong `src/app/` của repo này, build bằng `@angular/core@22.1.5`
+> Phần demo là app Todo thật nằm trong `src/app/` của repo này, build bằng `@angular/core@22.2.2`
 > thật (không phải giả lập) — cách dựng nó (và một cái bẫy CLI-vs-framework-version khá thú vị)
 > nằm ở cuối tài liệu.
 
@@ -76,7 +76,7 @@ export interface ReactiveNode {
 }
 ```
 
-📍 [`graph.ts#L120-L207`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/graph.ts#L120-L207)
+📍 [`graph.ts#L120-L207`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/graph.ts#L120-L207)
 — bản rút gọn ở trên bỏ JSDoc và 4 field mới hơn (`recomputing`, `producersTail`,
 `consumersTail`, `consumerAllowSignalWrites`, `debugName`, `kind`) không ảnh hưởng tới ý tưởng
 cốt lõi "một node, hai vai trò" nhưng có thật trong source — xem permalink để biết đủ.
@@ -101,7 +101,7 @@ export function producerAccessed(node: ReactiveNode): void {
 }
 ```
 
-📍 [`graph.ts#L212-L295`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/graph.ts#L212-L295)
+📍 [`graph.ts#L212-L295`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/graph.ts#L212-L295)
 — bản thật dài hơn nhiều: từ v22 nó còn dùng `producersTail`/`recomputing` để **incremental-diff**
 danh sách producer khi một consumer chạy lại (thay vì rebuild toàn bộ linked list mỗi lần), cộng
 một guard ném lỗi nếu đọc signal giữa lúc đang notify (`inNotificationPhase`). Ý tưởng cốt lõi ở
@@ -141,7 +141,7 @@ function producerAddLiveConsumer(node: ReactiveNode, link: ReactiveLink): void {
 }
 ```
 
-📍 [`graph.ts#L523-L544`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/graph.ts#L523-L544)
+📍 [`graph.ts#L523-L544`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/graph.ts#L523-L544)
 — cấu trúc linked-list thật dùng con trỏ `consumersTail` để chèn O(1) (doubly-linked), nhưng cùng
 một thuật toán lan truyền "live" bắc cầu như đoạn rút gọn ở trên.
 
@@ -169,8 +169,8 @@ function signalValueChanged<T>(node: SignalNode<T>): void {
 }
 ```
 
-📍 [`signal.ts#L86-L95`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/signal.ts#L86-L95)
-(`signalSetFn`) · [`signal.ts#L120-L125`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/signal.ts#L120-L125)
+📍 [`signal.ts#L86-L95`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/signal.ts#L86-L95)
+(`signalSetFn`) · [`signal.ts#L120-L125`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/signal.ts#L120-L125)
 (`signalValueChanged`) — khớp gần như nguyên văn, chỉ bớt một guard `producerUpdatesAllowed()`
 ném lỗi nếu `.set()` bị gọi trong lúc không hợp lệ (ví dụ trong thân `computed`).
 
@@ -183,7 +183,7 @@ export function producerNotifyConsumers(node: ReactiveNode): void {
 }
 ```
 
-📍 [`graph.ts#L339-L361`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/graph.ts#L339-L361)
+📍 [`graph.ts#L339-L361`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/graph.ts#L339-L361)
 
 Đây là nửa **push** của mô hình. Việc set một signal chỉ lan truyền một cờ `dirty = true` xuôi
 theo các live consumer — hoàn toàn không tính lại giá trị nào, không so sánh gì sâu hơn tham
@@ -207,7 +207,7 @@ export function producerUpdateValueVersion(node: ReactiveNode): void {
 }
 ```
 
-📍 [`graph.ts#L309-L334`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/graph.ts#L309-L334)
+📍 [`graph.ts#L309-L334`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/graph.ts#L309-L334)
 — khớp gần như nguyên văn với source thật (chỉ bớt comment giải thích từng nhánh).
 
 Đây là nửa **pull**. Ba tầng short-circuit theo đúng thứ tự chi phí tăng dần:
@@ -272,7 +272,7 @@ export function createSignal<T>(initialValue: T, equal?: ValueEqualityFn<T>) {
 }
 ```
 
-📍 [`signal.ts#L53-L73`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/signal.ts#L53-L73)
+📍 [`signal.ts#L53-L73`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/signal.ts#L53-L73)
 — bản rút gọn bỏ dòng debug (`getter.toString` cho dev-mode) và hook profiler
 (`runPostProducerCreatedFn`), không đổi cơ chế cốt lõi.
 
@@ -295,7 +295,7 @@ export const COMPUTING: any = Symbol('COMPUTING'); // đang tính dở — dùng
 export const ERRORED: any = Symbol('ERRORED'); // lần tính trước ném lỗi
 ```
 
-📍 [`computed.ts#L95-L113`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/computed.ts#L95-L113)
+📍 [`computed.ts#L95-L113`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/computed.ts#L95-L113)
 
 ```ts
 producerRecomputeValue(node) {
@@ -318,7 +318,7 @@ producerRecomputeValue(node) {
 }
 ```
 
-📍 [`computed.ts#L132-L172`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/computed.ts#L132-L172)
+📍 [`computed.ts#L132-L172`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/computed.ts#L132-L172)
 — khớp gần như nguyên văn, chỉ bớt comment và một điều kiện phụ trong `wasEqual`
 (`oldValue !== ERRORED && newValue !== ERRORED`, để tránh coi hai lỗi liên tiếp là "bằng nhau").
 
@@ -351,7 +351,7 @@ const WATCH_NODE = {
 };
 ```
 
-📍 [`watch.ts#L143-L155`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/watch.ts#L143-L155)
+📍 [`watch.ts#L143-L155`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/watch.ts#L143-L155)
 
 `Watch` không tự quyết định _khi nào_ chạy lại — nó chỉ gọi `schedule(this)` mỗi khi bị đánh dấu
 dirty, và ai tạo ra nó (ở đây là `@angular/core`) quyết định `schedule` nghĩa là gì.
@@ -373,7 +373,7 @@ export function effect(effectFn, options?) {
 }
 ```
 
-📍 [`effect.ts#L137-L197`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/src/render3/reactivity/effect.ts#L137-L197)
+📍 [`effect.ts#L137-L197`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/src/render3/reactivity/effect.ts#L137-L197)
 — bản rút gọn bỏ các assertion dev-mode (`assertNotInReactiveContext`, `assertInInjectionContext`)
 và phần đăng ký `DestroyRef`/`InjectorProfiler`; nhánh `viewContext`/`createRootEffect` là nguyên
 văn ý tưởng thật.
@@ -405,7 +405,7 @@ cleanup() {
 }
 ```
 
-📍 [`effect.ts#L235-L251`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/src/render3/reactivity/effect.ts#L235-L251)
+📍 [`effect.ts#L237-L253`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/src/render3/reactivity/effect.ts#L237-L253)
 — bản thật bọc thêm `setActiveConsumer(null)`/khôi phục lại, để việc gọi các hàm cleanup không bị
 tính là "đọc signal trong effect này".
 
@@ -467,9 +467,9 @@ linkedSignal<S, D>(options: {
 });
 ```
 
-📍 [`render3/reactivity/linked_signal.ts#L47-L53`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/src/render3/reactivity/linked_signal.ts#L47-L53)
+📍 [`render3/reactivity/linked_signal.ts#L47-L53`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/src/render3/reactivity/linked_signal.ts#L47-L53)
 (chữ ký `@publicApi 20.0`) · phần lưu state thật nằm ở
-[`primitives/signals/src/linked_signal.ts#L32-L61`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/primitives/signals/src/linked_signal.ts#L32-L61)
+[`primitives/signals/src/linked_signal.ts#L32-L61`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/primitives/signals/src/linked_signal.ts#L32-L61)
 (`LinkedSignalNode`).
 
 `set` là bổ sung của **v22.1** (`feat: add custom set option to linkedSignal`), và nó lấp đúng chỗ
@@ -511,15 +511,15 @@ qua `.set()` (qua `updateDraft()`), không đi qua `computation`.
 ## 7. `resource()` — ổn định (`@publicApi 22.0`) đúng từ bản v22 này
 
 ```ts
-// resource/resource.ts, dòng 49
+// resource/resource.ts, dòng 50
 /**
  * @publicApi 22.0
  */
 export function resource<T, R>(options: ResourceOptions<T, R> & {...}): ResourceRef<T>;
 ```
 
-📍 [`resource/resource.ts#L45-L52`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/src/resource/resource.ts#L45-L52)
-— dòng 49 khớp chính xác `@publicApi 22.0` như trích dẫn ở trên.
+📍 [`resource/resource.ts#L46-L53`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/src/resource/resource.ts#L46-L53)
+— dòng 50 khớp chính xác `@publicApi 22.0` như trích dẫn ở trên.
 
 Trước v22, API này còn ở dạng developer-preview (và trước đó nữa từng có tên `rxResource` riêng
 cho bản RxJS). Trong v22, chữ ký ổn định là:
@@ -583,7 +583,7 @@ App demo **không có `zone.js`** trong `package.json` — không phải vì b�
 private readonly zoneIsDefined = typeof Zone !== 'undefined' && !!Zone.root.run;
 ```
 
-📍 [`change_detection/scheduling/zoneless_scheduling_impl.ts#L67`](https://github.com/angular/angular/blob/468b65b74566537456c192ac4281795c5a1e1a5e/packages/core/src/change_detection/scheduling/zoneless_scheduling_impl.ts#L67)
+📍 [`change_detection/scheduling/zoneless_scheduling_impl.ts#L67`](https://github.com/angular/angular/blob/2da8b0b41da0b91cc57eacb329aabc194f01943d/packages/core/src/change_detection/scheduling/zoneless_scheduling_impl.ts#L67)
 — nguyên văn. Xem thêm [ADR 0001](./adr/0001-zoneless-signals-state.md) cho quyết định chọn
 zoneless của chính repo này.
 
@@ -714,6 +714,6 @@ deploy nằm ở mục "CI/CD" trong `README.md`.
 
 `package.json` ghim `@angular/cli@^21.2.20` trong khi mọi package framework thật (`@angular/core`,
 `common`, `compiler`, `platform-browser`, `compiler-cli`, `@angular/build`) đều ghim đúng
-`22.1.5` — không phải nhầm lẫn, mà là một cái bẫy Node-version-vs-CLI-version khá thú vị. Lý do
+`22.2.2` — không phải nhầm lẫn, mà là một cái bẫy Node-version-vs-CLI-version khá thú vị. Lý do
 đầy đủ (đọc từ `node_modules/@angular/cli/bin/ng.js` và
 `@angular/build/src/utils/version.js`) nằm ở [ADR 0003](./adr/0003-cli-vs-core-version-pin.md).

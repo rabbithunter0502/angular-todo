@@ -13,8 +13,9 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     groups:
-      # Tách LÀM HAI, không gộp một PR: framework (`22.1.5`) và tooling (`22.1.7`) chạy trên hai
-      # train version khác nhau. Gộp chung thì diff đọc như một lỗi đánh máy.
+      # Tách LÀM HAI, không gộp một PR: framework (`@angular/core`...) và tooling (`@angular/build`)
+      # là hai train release riêng — dù hiện cùng `22.2.2`, patch của chúng vẫn lệch nhau theo
+      # thời gian (22.1.5 vs 22.1.7). Gộp chung thì diff đọc như một lỗi đánh máy.
       angular-framework:
         patterns:
           - '@angular/core'
